@@ -1,55 +1,64 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-Int64 previous = 0;
-Int64 current = 0;
-Int64 next = 1;
+const int fibNCeiling = 92;
+
+Int64 previous = 4660046610375530309;
+Int64 current = -2880067194370816120;
+Int64 next = 1779979416004714189;
+
+List<Int64> FullSequence = new List<Int64>();
+
+FullSequence.Add(previous);
+
+for(int i = 1; i < fibNCeiling * 2; i++){
+    //Console.WriteLine(current);
+    FullSequence.Add(current);
+    previous = current;
+    current = next;
+    next = current + previous;           
+}
+
+foreach(var z in FullSequence){
+    Console.WriteLine(z);
+}
+
+int cursor = fibNCeiling - 1;
 
 app.MapGet("/",  () =>
     {
-        previous = 0;
-        current = 0;
-        next = 1;
+        cursor = fibNCeiling - 1;
         return "Fib sequence reset";
     }
 );
 
 app.MapGet("/current",  () =>
     {
-        return current;
+        return FullSequence[cursor];
     }
 );
 
 app.MapGet("/previous",  () =>
     {
-        previous = current - previous;
-        next = current;
-        current = current - previous;     
-        return current;
+        if(--cursor < 0)
+            cursor = 0;
+        return FullSequence[cursor];
     }
 );
 
 app.MapGet("/next",  () =>
     {
-        previous = current;
-        current = next;
-        next = current + previous;     
-        return current;
+       if(++cursor >= FullSequence.Count)
+            cursor = FullSequence.Count - 1;
+        return FullSequence[cursor];
+    }
+);
+
+app.MapGet("/bird",  () =>
+    {      
+        return Results.NotFound();
     }
 );
 
 app.Run();
 
-
-int GetNthFibonacci_Ite(int n)  
-{  
-    int number = n - 1; //Need to decrement by 1 since we are starting from 0  
-    int[] Fib = new int[number + 1];  
-    Fib[0]= 0;  
-    Fib[1]= 1;  
-    for (int i = 2; i <= number;i++)  
-    {  
-       Fib[i] = Fib[i - 2] + Fib[i - 1];  
-    }  
-    return Fib[number];  
-}
