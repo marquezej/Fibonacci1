@@ -3,6 +3,8 @@ var app = builder.Build();
 
 FibonacciSequenceTracker f = new FibonacciSequenceTracker(92);
 
+app.Urls.Add("http://localhost:5037");
+
 app.MapGet("/",  () =>
     {
         f.Reset();
@@ -20,7 +22,7 @@ app.MapGet("/previous",  () =>
     {
         try
         {
-            return f.Next();
+            return f.Previous();
         }
         catch(OutofFibonacciRangeException E)
         {
