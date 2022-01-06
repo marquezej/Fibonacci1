@@ -36,7 +36,8 @@ app.MapGet("/next",  () =>
     {
         try
         {
-            return f.Next();
+            string s =f.Next();
+            return s;
         }
         catch(OutofFibonacciRangeException E)
         {
@@ -50,7 +51,11 @@ app.MapGet("/next",  () =>
 
 app.MapGet("/bird",  () =>
     {      
-        return Results.NotFound();
+        return Results.NotFound( 
+            new { error = "FIB-0001",
+                  message = "Out of range of calculable Fibonacci Numbers",
+                  detail = "Only up to 64bit integers are implemented in this server, anything higher than 92nd Fibonacci number will need to be"}
+         );
     }
 );
 
@@ -58,57 +63,57 @@ app.Run();
 
 class FibonacciSequenceTracker
 {
-    private int Ceiling;
-    private List<Int64> FullSequence ;
-    private int cursor;
+    private int _ceiling;
+    private int _cursor;
+    private List<Int64> _fullSequence ;
+    private Int64 _previous;
+    private Int64 _current;
+    private Int64 _next;
 
-    private Int64 previous;
-    private Int64 current;
-    private Int64 next;
 
-    public FibonacciSequenceTracker(int c){
-        if(c != 92)
-            throw new ArgumentException("Anything other than 92 is currently unsupported", c.ToString());
+    public FibonacciSequenceTracker(int maximumFibonacciNumberN){
+        if(maximumFibonacciNumberN != 92)
+            throw new ArgumentException("Anything other than 92 is currently unsupported", maximumFibonacciNumberN.ToString());
         
-        previous = 4660046610375530309;
-        current = -2880067194370816120;
-        next = 1779979416004714189;
-        Ceiling = c;
-        FullSequence = new List<Int64>();
+        _previous = 4660046610375530309;
+        _current = -2880067194370816120;
+        _next = 1779979416004714189;
+        _ceiling = maximumFibonacciNumberN;
+        _fullSequence = new List<Int64>();
 
-        FullSequence.Add(previous);
-        for(int i = 1; i < Ceiling * 2; i++){
-            FullSequence.Add(current);
-            previous = current;
-            current = next;
-            next = current + previous;           
+        _fullSequence.Add(_previous);
+        for(int i = 1; i < _ceiling * 2; i++){
+            _fullSequence.Add(_current);
+            _previous = _current;
+            _current = _next;
+            _next = _current + _previous;           
         }
-        cursor = c - 1;
+        _cursor = maximumFibonacciNumberN - 1;
 
     }
     public string Next()
     {
-        if(cursor + 1 >= FullSequence.Count)
+        if(_cursor + 1 >= _fullSequence.Count)
             throw new OutofFibonacciRangeException();
-        return FullSequence[++cursor].ToString();
+        return _fullSequence[++_cursor].ToString();
     }
     public string Previous()
     {
-        if(cursor - 1 < 0)
+        if(_cursor - 1 < 0)
             throw new OutofFibonacciRangeException();
-        return FullSequence[--cursor].ToString();
+        return _fullSequence[--_cursor].ToString();
     }
     public string Current()
     {
-        return FullSequence[cursor].ToString();
+        return _fullSequence[_cursor].ToString();
     }
     public void Reset()
     {
-        cursor = Ceiling - 1;
+        _cursor = _ceiling - 1;
     }
     public int FindCeiling()
     {
-        return Ceiling;
+        return _ceiling;
     }
 
 }
